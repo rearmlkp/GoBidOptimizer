@@ -5,8 +5,9 @@ import (
 	"github.com/valyala/fasthttp"
 	"fmt"
 	"github.com/json-iterator/go"
-	"./src/IO"
+	"GoBidOptimiser/src/IO"
 	"github.com/json-iterator/go/extra"
+	"GoBidOptimiser/src/Strategies"
 )
 
 func Status(ctx *fasthttp.RequestCtx) {
@@ -16,21 +17,18 @@ func Status(ctx *fasthttp.RequestCtx) {
 func Bidding(ctx *fasthttp.RequestCtx) {
 	extra.RegisterFuzzyDecoders()
 	var ORTB IO.OpenRTBRequest
-	err := jsoniter.Unmarshal(ctx.Request.Body(), &ORTB)
-	if err != nil {
+	if err := jsoniter.Unmarshal(ctx.Request.Body(), &ORTB); err != nil {
 		fmt.Println(err)
 	}
 
 	// Simple processing for all raw
 	if ORTB.AppRaw != nil {
-		err = jsoniter.Unmarshal(ORTB.AppRaw, &ORTB.App)
-		if err != nil {
+		if err := jsoniter.Unmarshal(ORTB.AppRaw, &ORTB.App); err != nil {
 			fmt.Println(err)
 		}
 	}
 	if ORTB.SiteRaw != nil {
-		err = jsoniter.Unmarshal(ORTB.SiteRaw, &ORTB.Site)
-		if err != nil {
+		if err := jsoniter.Unmarshal(ORTB.SiteRaw, &ORTB.Site); err != nil {
 			fmt.Println(err)
 		}
 	}
@@ -39,8 +37,38 @@ func Bidding(ctx *fasthttp.RequestCtx) {
 	if err != nil {
 		fmt.Println(err)
 	}
+
 	fmt.Println(k)
-	fmt.Fprintln(ctx, "It work...?")
+
+	// Optimizing bid
+	prediction := BiddingOptimizer(ORTB)
+	outputResult, err := jsoniter.Marshal(&prediction)
+	fmt.Fprintln(ctx, outputResult)
+}
+
+func BiddingOptimizer(ORTB IO.OpenRTBRequest) IO.BiddingOutput {
+	isPriority := ORTB.Ext.GetCampaignConfig().IsPriority
+	//biddingStrategy := ORTB.Ext.Strategy
+	var r Strategies.AbstractBiddingStrategy
+	if isPriority {
+		r = Strategies.IgnoreBiddingStrategy{}
+	} else {
+		r = Strategies.IgnoreBiddingStrategy{}
+	}
+	bidResult := r.PredictPrice(ORTB)
+	result := IO.BiddingOutput{
+		Id: ORTB.Id,
+	}
+	for k, v := range bidResult {
+		result.BidResponse = append(result.BidResponse, IO.ImpressionPricepair{
+			Impid:        k,
+			PredictedCTR: v.PredictedCTR,
+			PredictedCVR: v.PredictedCVR,
+			Price:        v.PredictedPrice,
+		})
+	}
+
+	return result
 }
 
 func main() {

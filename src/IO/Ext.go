@@ -27,6 +27,26 @@ type Ext struct {
 	UserIds                    UserIds            `json:"userIds"`
 }
 
+func (e Ext) GetCampaignConfig() CampaignConfig {
+	isPriority := false
+	if len(e.RtbkitExt.AugmentationList.FrequencyCapRedis) > 0 {
+		for _, item := range e.RtbkitExt.AugmentationList.FrequencyCapRedis[0].Augmentation.Tags {
+			if item == "priority-user" {
+				isPriority = true
+			}
+		}
+	}
+	return CampaignConfig{
+		IsPriority:               isPriority,
+		WinRatioUpper:            e.WinRatioUpper,
+		WinRatioLower:            e.WinRatioLower,
+		PriceDeltaUpper:          e.BidPriceDeltaUpper,
+		PriceDeltaLower:          e.BidPriceDeltaLower,
+		CampaignSessionTargetCPM: e.ReferenceCPM,
+		MultiReferenceCPM:        e.MultiReferenceCPM,
+	}
+}
+
 type RtbkitExt struct {
 	AugmentationList AugmentationList `json:"augmentationList"`
 }
