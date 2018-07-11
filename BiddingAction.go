@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"github.com/json-iterator/go"
 	"GoBidOptimiser/src/IO"
-	"github.com/json-iterator/go/extra"
 	"GoBidOptimiser/src/Strategies"
+	"github.com/json-iterator/go/extra"
 )
 
 func Status(ctx *fasthttp.RequestCtx) {
@@ -21,7 +21,6 @@ func Bidding(ctx *fasthttp.RequestCtx) {
 		strApplicationJSON = []byte("application/json")
 	)
 
-	extra.RegisterFuzzyDecoders()
 	var ORTB IO.OpenRTBRequest
 	if err := jsoniter.Unmarshal(ctx.Request.Body(), &ORTB); err != nil {
 		fmt.Println(err)
@@ -80,6 +79,7 @@ func BiddingOptimizer(ORTB IO.OpenRTBRequest) IO.BiddingOutput {
 }
 
 func main() {
+	extra.RegisterFuzzyDecoders()
 	router := fasthttprouter.New()
 	router.POST("/status", Status)
 	router.POST("/bidding.optimizer.v2/bidding", Bidding)
