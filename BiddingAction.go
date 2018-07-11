@@ -38,16 +38,16 @@ func Bidding(ctx *fasthttp.RequestCtx) {
 		}
 	}
 
-	k, err := jsoniter.MarshalToString(&ORTB)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	fmt.Println(k)
+	//k, err := jsoniter.MarshalToString(&ORTB)
+	//if err != nil {
+	//	fmt.Println(err)
+	//}
+	//
+	//fmt.Println(k)
 
 	// Optimizing bid
 	prediction := BiddingOptimizer(ORTB)
-	outputResult, err := jsoniter.Marshal(&prediction)
+	outputResult, _ := jsoniter.Marshal(&prediction)
 	ctx.Response.SetBody(outputResult)
 	ctx.Response.Header.SetCanonical(strContentType, strApplicationJSON)
 	//fmt.Fprintln(ctx, outputResult)
