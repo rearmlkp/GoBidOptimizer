@@ -15,6 +15,12 @@ func Status(ctx *fasthttp.RequestCtx) {
 }
 
 func Bidding(ctx *fasthttp.RequestCtx) {
+
+	var (
+		strContentType     = []byte("Content-Type")
+		strApplicationJSON = []byte("application/json")
+	)
+
 	extra.RegisterFuzzyDecoders()
 	var ORTB IO.OpenRTBRequest
 	if err := jsoniter.Unmarshal(ctx.Request.Body(), &ORTB); err != nil {
@@ -43,7 +49,9 @@ func Bidding(ctx *fasthttp.RequestCtx) {
 	// Optimizing bid
 	prediction := BiddingOptimizer(ORTB)
 	outputResult, err := jsoniter.Marshal(&prediction)
-	fmt.Fprintln(ctx, outputResult)
+	ctx.Response.SetBody(outputResult)
+	ctx.Response.Header.SetCanonical(strContentType, strApplicationJSON)
+	//fmt.Fprintln(ctx, outputResult)
 }
 
 func BiddingOptimizer(ORTB IO.OpenRTBRequest) IO.BiddingOutput {
