@@ -1,6 +1,6 @@
 package Strategies
 
-import "GoBidOptimiser/src/IO"
+import "GoBidOptimizer/src/IO"
 
 type IgnoreBiddingStrategy struct {
 }

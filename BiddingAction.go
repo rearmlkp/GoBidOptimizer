@@ -5,8 +5,8 @@ import (
 	"github.com/valyala/fasthttp"
 	"fmt"
 	"github.com/json-iterator/go"
-	"GoBidOptimiser/src/IO"
-	"GoBidOptimiser/src/Strategies"
+	"GoBidOptimizer/src/IO"
+	"GoBidOptimizer/src/Strategies"
 	"github.com/json-iterator/go/extra"
 )
 
