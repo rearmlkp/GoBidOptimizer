@@ -30,13 +30,19 @@ func Bidding(ctx *fasthttp.RequestCtx) {
 	if ORTB.AppRaw != nil {
 		if err := jsoniter.Unmarshal(ORTB.AppRaw, &ORTB.App); err != nil {
 			fmt.Println(err)
+		} else {
+			ORTB.ImpressionSource = ORTB.App
 		}
 	}
 	if ORTB.SiteRaw != nil {
 		if err := jsoniter.Unmarshal(ORTB.SiteRaw, &ORTB.Site); err != nil {
 			fmt.Println(err)
+		} else {
+			ORTB.ImpressionSource = ORTB.Site
 		}
 	}
+
+	ORTB.TimestampInSecond = int32(ORTB.Timestamp / 1000)
 
 	//k, err := jsoniter.MarshalToString(&ORTB)
 	//if err != nil {
@@ -66,8 +72,8 @@ func BiddingOptimizer(ORTB IO.OpenRTBRequest) IO.BiddingOutput {
 	result := IO.BiddingOutput{
 		Id: ORTB.Id,
 	}
-	for k, v := range bidResult {
-		result.BidResponse = append(result.BidResponse, IO.ImpressionPricepair{
+	for k, v := range *bidResult {
+		result.BidResponse = append(result.BidResponse, IO.ImpressionPricePair{
 			Impid:        k,
 			PredictedCTR: v.PredictedCTR,
 			PredictedCVR: v.PredictedCVR,

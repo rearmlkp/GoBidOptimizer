@@ -16,3 +16,7 @@ type OpenRTBRequest struct {
 	AppRaw            jsoniter.RawMessage `json:"app,omitempty"`
 	Segments          Segments            `json:"segments"`
 }
+
+func (o OpenRTBRequest) SourceString() string {
+	return o.Ext.Exchange + ":" + o.ImpressionSource.getPublisher().Id + ":" + o.ImpressionSource.getId()
+}

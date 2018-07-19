@@ -12,14 +12,14 @@ func Index(ctx *fasthttp.RequestCtx) {
 }
 
 type ColorGroup struct {
-	ID     int       `json:"id"`
+	ID     int32     `json:"id"`
 	Name   string    `json:"name"`
 	Colors []string  `json:"colors"`
 	Test   TestGroup `json:"test"`
 }
 
 type TestGroup struct {
-	Inside int `json:"inside"`
+	Inside int32 `json:"inside"`
 }
 
 func main() {

@@ -1,8 +1,8 @@
 package IO
 
 type ImpressionSource interface {
-	getId()
-	getPublisher()
-	getHost()
-	getURL()
+	getId() string
+	getPublisher() Publisher
+	getHost() string
+	getURL() string
 }
