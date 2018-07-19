@@ -1,7 +1,7 @@
 package Managers
 
 import (
-	"src/github.com/go-redis/redis"
+	"github.com/go-redis/redis"
 	"GoBidOptimizer/src/Configurations"
 	"time"
 )
