@@ -8,7 +8,16 @@ import (
 	"GoBidOptimizer/src/IO"
 	"GoBidOptimizer/src/Strategies"
 	"github.com/json-iterator/go/extra"
+	"flag"
+	"os"
+	"log"
+	"runtime/pprof"
+	"os/signal"
+	"syscall"
 )
+
+var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to `file`")
+var memprofile = flag.String("memprofile", "", "write memory profile to `file`")
 
 func Status(ctx *fasthttp.RequestCtx) {
 	fmt.Fprint(ctx, "Status ok")
@@ -84,7 +93,36 @@ func BiddingOptimizer(ORTB IO.OpenRTBRequest) IO.BiddingOutput {
 	return result
 }
 
+func cleanup() {
+	fmt.Print("Stop profiler")
+	pprof.StopCPUProfile()
+}
+
 func main() {
+	flag.Parse()
+	if *cpuprofile != "" {
+		f, err := os.Create(*cpuprofile)
+		if err != nil {
+			fmt.Println(err)
+			log.Fatal("could not create CPU profile: ", err)
+		}
+		if err := pprof.StartCPUProfile(f); err != nil {
+			fmt.Println(err)
+			log.Fatal("could not start CPU profile: ", err)
+		}
+		fmt.Println("Using profiler")
+		defer func() {
+			fmt.Print("Stop profiler")
+			pprof.StopCPUProfile()
+		}()
+	}
+	c := make(chan os.Signal)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+	go func() {
+		<-c
+		cleanup()
+		os.Exit(1)
+	}()
 	extra.RegisterFuzzyDecoders()
 	router := fasthttprouter.New()
 	router.POST("/status", Status)
